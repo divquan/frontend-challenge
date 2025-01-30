@@ -17,16 +17,17 @@ import {
 
 import { Button } from "@/components/ui/button";
 import db, { AllowedFileType } from "@/db/db";
-// import { Input } from "@/components/ui/input";
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogDescription,
-//   DialogFooter,
-//   DialogClose,
-// } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import Link from "next/link";
 
 interface FileRecord {
   id: string;
@@ -46,7 +47,7 @@ const FileIcons = {
 };
 
 const FileManagementPage: React.FC = () => {
-  const files = useFiles();
+  const { files, loading: fileLoading } = useFiles();
   const [searchTerm, setSearchTerm] = useState("");
   const [fileToDelete, setFileToDelete] = useState<FileRecord | null>(null);
   const allowedFileTypes: AllowedFileType[] = [
@@ -168,52 +169,56 @@ const FileManagementPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {filteredFiles.map((file) => (
-          <div
-            key={file.id}
-            className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
-          >
-            <div className="flex justify-between items-center mb-2">
-              <FileIcon type={file.type} />
-              <Button
-                variant="destructive"
-                size="icon"
-                onClick={() => setFileToDelete(file)}
+        {fileLoading && "Loading..."}
+        {filteredFiles?.length == 0
+          ? "No files were found"
+          : filteredFiles.map((file) => (
+              <Link
+                href={`/editor?fid${file.id}`}
+                key={file.id}
+                className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
               >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
-            <div className="text-sm">
-              <p className="font-medium truncate">{file.name}</p>
-              <p className="text-gray-500">{formatFileSize(file.file)}</p>
-            </div>
-          </div>
-        ))}
+                <div className="flex justify-between items-center mb-2 p-4">
+                  <FileIcon type={file.type} />
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => setFileToDelete(file)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="text-sm">
+                  <p className="font-medium truncate">{file.name}</p>
+                  <p className="text-gray-500">{formatFileSize(file.file)}</p>
+                </div>
+              </Link>
+            ))}
       </div>
 
-      {/*{fileToDelete && (*/}
-      {/*  <Dialog*/}
-      {/*    open={!!fileToDelete}*/}
-      {/*    onOpenChange={() => setFileToDelete(null)}*/}
-      {/*  >*/}
-      {/*    <DialogContent>*/}
-      {/*      <DialogHeader>*/}
-      {/*        <DialogTitle>Delete File</DialogTitle>*/}
-      {/*        <DialogDescription>*/}
-      {/*          Are you sure you want to delete {fileToDelete.name}?*/}
-      {/*        </DialogDescription>*/}
-      {/*      </DialogHeader>*/}
-      {/*      <DialogFooter>*/}
-      {/*        <DialogClose asChild>*/}
-      {/*          <Button variant="outline">Cancel</Button>*/}
-      {/*        </DialogClose>*/}
-      {/*        <Button variant="destructive" onClick={handleDelete}>*/}
-      {/*          Delete*/}
-      {/*        </Button>*/}
-      {/*      </DialogFooter>*/}
-      {/*    </DialogContent>*/}
-      {/*  </Dialog>*/}
-      {/*)}*/}
+      {fileToDelete && (
+        <Dialog
+          open={!!fileToDelete}
+          onOpenChange={() => setFileToDelete(null)}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete File</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete {fileToDelete.name}?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button variant="destructive" onClick={() => {}}>
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
