@@ -51,7 +51,7 @@ export default function MainPage() {
   );
 }
 function EditorComponent() {
-  const FID = useSearchParams().get("fId");
+  const FID = useSearchParams().get("fid");
   const [pdfFileData, setPDFFileData] = useState<FileRecord | null>(null);
   const [numPages, setNumPages] = useState<number>();
   const [pageNumber, setPageNumber] = useState<number>(1);
@@ -253,39 +253,7 @@ function EditorComponent() {
           "border border-muted-foreground/50  w-full rounded-xl col-span-8  relative "
         }
       >
-        <div className={""}>
-          {elements.map((element) => (
-            <Rnd
-              className={"z-40"}
-              key={element.id}
-              size={{ width: element.width, height: element.height }}
-              position={{ x: element.x, y: element.y }}
-              onDragStop={(e, d) => {
-                updateElement(element.id, { x: d.x, y: d.y });
-                setSelectedElementId(element.id);
-              }}
-              onResizeStop={(e, direction, ref, delta, position) => {
-                updateElement(element.id, {
-                  width: parseInt(ref.style.width, 10),
-                  height: parseInt(ref.style.height, 10),
-                  ...position,
-                });
-                setSelectedElementId(element.id);
-              }}
-              style={element.style}
-              bounds="parent"
-            >
-              <div className="w-full h-full relative">
-                {renderElementContent(element)}
-                <button
-                  className="absolute top-0 right-0 bg-red-500 text-white p-1"
-                  onClick={() => removeElement(element.id)}
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            </Rnd>
-          ))}
+        <div className={"bg-gray-400"}>
           {pdfFileData && (
             <>
               <Document
@@ -293,7 +261,41 @@ function EditorComponent() {
                 onLoadSuccess={onDocumentLoadSuccess}
                 className={"p-8 flex flex-col  items-center"}
               >
-                <Page pageNumber={pageNumber} />
+                <Page pageNumber={pageNumber}>
+                  {" "}
+                  {elements.map((element) => (
+                    <Rnd
+                      className={"z-40"}
+                      key={element.id}
+                      size={{ width: element.width, height: element.height }}
+                      position={{ x: element.x, y: element.y }}
+                      onDragStop={(e, d) => {
+                        updateElement(element.id, { x: d.x, y: d.y });
+                        setSelectedElementId(element.id);
+                      }}
+                      onResizeStop={(e, direction, ref, delta, position) => {
+                        updateElement(element.id, {
+                          width: parseInt(ref.style.width, 10),
+                          height: parseInt(ref.style.height, 10),
+                          ...position,
+                        });
+                        setSelectedElementId(element.id);
+                      }}
+                      style={element.style}
+                      bounds="parent"
+                    >
+                      <div className="w-full h-full relative">
+                        {renderElementContent(element)}
+                        <button
+                          className="absolute top-0 right-0 bg-red-500 text-white p-1"
+                          onClick={() => removeElement(element.id)}
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    </Rnd>
+                  ))}
+                </Page>
               </Document>
             </>
           )}
