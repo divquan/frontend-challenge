@@ -1,7 +1,7 @@
-"use client";
+'use client';
 // import { FileRecord } from "@/db/db";
-import { useFiles } from "@/hooks/useFile";
-import React, { useState } from "react";
+import { useFiles } from '@/hooks/useFile';
+import React, { useState } from 'react';
 import {
   File,
   Upload,
@@ -13,11 +13,11 @@ import {
   FileVideo,
   FileAudio,
   FilePen,
-} from "lucide-react";
+} from 'lucide-react';
 
-import { Button } from "@/components/ui/button";
-import db, { AllowedFileType } from "@/db/db";
-import { Input } from "@/components/ui/input";
+import { Button } from '@/components/ui/button';
+import db, { AllowedFileType } from '@/db/db';
+import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
@@ -26,8 +26,8 @@ import {
   DialogDescription,
   DialogFooter,
   DialogClose,
-} from "@/components/ui/dialog";
-import Link from "next/link";
+} from '@/components/ui/dialog';
+import Link from 'next/link';
 
 interface FileRecord {
   id: string;
@@ -48,26 +48,26 @@ const FileIcons = {
 
 const FileManagementPage: React.FC = () => {
   const { files, loading: fileLoading } = useFiles();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [fileToDelete, setFileToDelete] = useState<FileRecord | null>(null);
   const allowedFileTypes: AllowedFileType[] = [
-    "application/pdf",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "application/vnd.ms-excel",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "image/jpeg",
-    "image/png",
-    "application/vnd.ms-outlook",
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'image/jpeg',
+    'image/png',
+    'application/vnd.ms-outlook',
   ];
   const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     if (event.target.files && event.target.files[0]) {
       const selectedFile = event.target.files[0];
 
       if (!allowedFileTypes.includes(selectedFile.type as AllowedFileType)) {
-        alert("Invalid file type! Please select a valid file.");
+        alert('Invalid file type! Please select a valid file.');
         return;
       }
       if (!selectedFile) return;
@@ -82,9 +82,9 @@ const FileManagementPage: React.FC = () => {
           type: fileType,
           file: selectedFile,
         });
-        alert("File uploaded successfully!");
+        alert('File uploaded successfully!');
       } catch (error) {
-        console.error("Error uploading file:", error);
+        console.error('Error uploading file:', error);
       }
     }
   };
@@ -130,67 +130,64 @@ const FileManagementPage: React.FC = () => {
   // };
 
   const filteredFiles = files.filter((file) =>
-    file.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    file.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const FileIcon: React.FC<{ type?: AllowedFileType }> = ({ type }) => {
-    const Icon = FileIcons["default"];
-    return <Icon className="w-12 h-12 text-gray-500" />;
+    const Icon = FileIcons['default'];
+    return <Icon className='w-12 h-12 text-gray-500' />;
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center space-x-4 w-full max-w-md">
-          <Search className="text-gray-500" />
+    <div className='container mx-auto p-6'>
+      <div className='flex justify-between items-center mb-6'>
+        <div className='flex items-center space-x-4 w-full max-w-md'>
+          <Search className='text-gray-500' />
           <input
-            placeholder="Search files..."
+            placeholder='Search files...'
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-grow"
+            className='flex-grow'
           />
         </div>
         <div>
           <input
-            type="file"
-            id="file-upload"
-            className="hidden"
+            type='file'
+            id='file-upload'
+            className='hidden'
             onChange={handleFileChange}
           />
           <Button asChild>
             <label
-              htmlFor="file-upload"
-              className="cursor-pointer flex items-center"
-            >
-              <Upload className="mr-2 w-4 h-4" /> Upload
+              htmlFor='file-upload'
+              className='cursor-pointer flex items-center'>
+              <Upload className='mr-2 w-4 h-4' /> Upload
             </label>
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {fileLoading && "Loading..."}
+      <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
+        {fileLoading && 'Loading...'}
         {filteredFiles?.length == 0
-          ? "No files were found"
+          ? 'No files were found'
           : filteredFiles.map((file) => (
               <Link
-                href={`/editor?fid${file.id}`}
+                href={`/pdf?fid=${file.id}`}
                 key={file.id}
-                className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <div className="flex justify-between items-center mb-2 p-4">
+                className='bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow'>
+                <div className='flex justify-between items-center mb-2 p-4'>
                   <FileIcon type={file.type} />
                   <Button
-                    variant="destructive"
-                    size="icon"
-                    onClick={() => setFileToDelete(file)}
-                  >
-                    <Trash2 className="w-4 h-4" />
+                    variant='destructive'
+                    size='icon'
+                    onClick={() => setFileToDelete(file)}>
+                    <Trash2 className='w-4 h-4' />
                   </Button>
                 </div>
-                <div className="text-sm">
-                  <p className="font-medium truncate">{file.name}</p>
-                  <p className="text-gray-500">{formatFileSize(file.file)}</p>
+                <div className='text-sm'>
+                  <p className='font-medium truncate'>{file.name}</p>
+                  <p className='text-gray-500'>{formatFileSize(file.file)}</p>
                 </div>
               </Link>
             ))}
@@ -199,8 +196,7 @@ const FileManagementPage: React.FC = () => {
       {fileToDelete && (
         <Dialog
           open={!!fileToDelete}
-          onOpenChange={() => setFileToDelete(null)}
-        >
+          onOpenChange={() => setFileToDelete(null)}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Delete File</DialogTitle>
@@ -210,9 +206,9 @@ const FileManagementPage: React.FC = () => {
             </DialogHeader>
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button variant='outline'>Cancel</Button>
               </DialogClose>
-              <Button variant="destructive" onClick={() => {}}>
+              <Button variant='destructive' onClick={() => {}}>
                 Delete
               </Button>
             </DialogFooter>
