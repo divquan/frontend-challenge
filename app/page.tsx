@@ -117,10 +117,19 @@ const FileManagementPage: React.FC = () => {
   //   }
   // };
 
-  const formatFileSize = (file: Blob): string => {
-    const sizeInMB = file.size / 1024 / 1024;
-    return `${sizeInMB.toFixed(1)} MB`;
-  };
+  function getFileSize(file: Blob) {
+    const size = file.size; // Size in bytes
+    const units = ['Bytes', 'KB', 'MB', 'GB'];
+    let index = 0;
+
+    let formattedSize = size;
+    while (formattedSize >= 1024 && index < units.length - 1) {
+      formattedSize /= 1024;
+      index++;
+    }
+
+    return `${formattedSize.toFixed(2)} ${units[index]}`;
+  }
 
   // const handleDelete = () => {
   //   if (fileToDelete) {e
@@ -173,7 +182,7 @@ const FileManagementPage: React.FC = () => {
           ? 'No files were found'
           : filteredFiles.map((file) => (
               <Link
-                href={`/pdf?fid=${file.id}`}
+                href={`/editor?fid=${file.id}`}
                 key={file.id}
                 className='bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow'>
                 <div className='flex justify-between items-center mb-2 p-4'>
@@ -187,7 +196,7 @@ const FileManagementPage: React.FC = () => {
                 </div>
                 <div className='text-sm'>
                   <p className='font-medium truncate'>{file.name}</p>
-                  <p className='text-gray-500'>{formatFileSize(file.file)}</p>
+                  <p className='text-gray-500'>{getFileSize(file.file)}</p>
                 </div>
               </Link>
             ))}

@@ -17,6 +17,7 @@
     "clsx": "^2.1.1",
     "dexie": "^4.0.11",
     "dexie-react-hooks": "^1.1.7",
+    "docx-preview": "^0.3.4",
     "fabric": "^6.5.4",
     "lucide-react": "^0.474.0",
     "mammoth": "^1.9.0",
@@ -26,14 +27,17 @@
     "react-dom": "^19.0.0",
     "react-pdf": "^9.2.1",
     "react-rnd": "^10.4.14",
+    "react-window": "^1.8.11",
     "tailwind-merge": "^2.6.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/react-window": "^1.8.8",
     "eslint": "^9",
     "eslint-config-next": "15.1.6",
     "postcss": "^8",

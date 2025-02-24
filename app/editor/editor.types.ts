@@ -16,6 +16,7 @@ export interface CanvasElement {
   content?: string;
   style?: React.CSSProperties;
   color?: string;
+  page?: number;
 }
 
 export interface FileRecord {

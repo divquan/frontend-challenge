@@ -15,6 +15,8 @@ import { X } from 'lucide-react';
 
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
+import { DocViewer } from '../pdf/page';
+import { Button } from '@/components/ui/button';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -38,12 +40,12 @@ export function Editor() {
     updateElement,
     removeElement,
     getSelectedElement,
-  } = useElements();
+    handleSave,
+  } = useElements(FID);
 
   const { getFile } = useFiles();
 
   useEffect(() => {
-    console.log(FID, 'fileId');
     if (!FID) return;
     getFile(FID).then((file) => {
       console.log('file', file);
@@ -113,6 +115,17 @@ export function Editor() {
           </div>
         </div>
       );
+    } else if (
+      pdfFileData.type === 'application/msword' ||
+      pdfFileData.type ===
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ) {
+      return (
+        <div>
+          <DocViewer file={pdfFileData.file} renderElements={renderElements} />
+          {/* {renderElements()} */}
+        </div>
+      );
     }
   };
 
@@ -151,55 +164,58 @@ export function Editor() {
     }
   };
   const renderElements = () => {
-    return elements.map((element) => (
-      <Rnd
-        key={element.id}
-        className='group absolute top-0 left-0'
-        size={{
-          width: element.width * scale,
-          height: element.height * scale,
-        }}
-        position={{
-          x: element.x * scale,
-          y: element.y * scale,
-        }}
-        onDragStop={(e, d) => {
-          updateElement(element.id, {
-            x: d.x / scale,
-            y: d.y / scale,
-          });
-          setSelectedElementId(element.id);
-        }}
-        onResizeStop={(e, direction, ref, delta, position) => {
-          updateElement(element.id, {
-            width: parseInt(ref.style.width, 10) / scale,
-            height: parseInt(ref.style.height, 10) / scale,
-            x: position.x / scale,
-            y: position.y / scale,
-          });
-          setSelectedElementId(element.id);
-        }}
-        bounds='parent'
-        scale={scale}
-        style={{
-          ...element.style,
-          zIndex: 40,
-        }}>
-        <div
-          className='w-full h-full relative rounded-md ring-1 ring-black/10 hover:ring-2 hover:ring-primary/50'
-          onClick={() => setSelectedElementId(element.id)}>
-          {renderElementContent(element)}
-          <button
-            className='absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-10'
-            onClick={(e) => {
-              e.stopPropagation();
-              removeElement(element.id);
-            }}>
-            <X size={14} />
-          </button>
-        </div>
-      </Rnd>
-    ));
+    return elements.map((element) => {
+      if (element.page !== pageNumber) return null;
+      return (
+        <Rnd
+          key={element.id}
+          className='group absolute top-0 left-0'
+          size={{
+            width: element.width * scale,
+            height: element.height * scale,
+          }}
+          position={{
+            x: element.x * scale,
+            y: element.y * scale,
+          }}
+          onDragStop={(e, d) => {
+            updateElement(element.id, {
+              x: d.x / scale,
+              y: d.y / scale,
+            });
+            setSelectedElementId(element.id);
+          }}
+          onResizeStop={(e, direction, ref, delta, position) => {
+            updateElement(element.id, {
+              width: parseInt(ref.style.width, 10) / scale,
+              height: parseInt(ref.style.height, 10) / scale,
+              x: position.x / scale,
+              y: position.y / scale,
+            });
+            setSelectedElementId(element.id);
+          }}
+          bounds='parent'
+          scale={scale}
+          style={{
+            ...element.style,
+            zIndex: 40,
+          }}>
+          <div
+            className='w-full h-full relative rounded-md ring-1 ring-black/10 hover:ring-2 hover:ring-primary/50'
+            onClick={() => setSelectedElementId(element.id)}>
+            {renderElementContent(element)}
+            <button
+              className='absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-10'
+              onClick={(e) => {
+                e.stopPropagation();
+                removeElement(element.id);
+              }}>
+              <X size={14} />
+            </button>
+          </div>
+        </Rnd>
+      );
+    });
   };
 
   // Modify the fitToWidth function to work with both PDFs and images
@@ -223,7 +239,7 @@ export function Editor() {
         <Toolbar
           selectedTool={selectedTool}
           onToolSelect={(type) => {
-            addElement(type);
+            addElement(type, pageNumber);
             setSelectedTool(type);
           }}
         />
@@ -235,19 +251,22 @@ export function Editor() {
             }
           }}
         />
+        <Button onClick={handleSave}>Save</Button>
       </aside>
 
       <ScrollArea className='border border-muted-foreground/50 w-full h-full rounded-xl relative pdf-container col-span-8'>
         <div className='bg-gray-400 min-h-full'>
           {renderContent()}
-          <ViewerControls
-            pageNumber={pageNumber}
-            numPages={numPages ?? 0}
-            scale={scale}
-            onPageChange={setPageNumber}
-            onScaleChange={setScale}
-            onFitToWidth={fitToWidth}
-          />
+          {pdfFileData?.file.type === 'pdf' && (
+            <ViewerControls
+              pageNumber={pageNumber}
+              numPages={numPages ?? 0}
+              scale={scale}
+              onPageChange={setPageNumber}
+              onScaleChange={setScale}
+              onFitToWidth={fitToWidth}
+            />
+          )}
         </div>
       </ScrollArea>
     </div>

@@ -1,16 +1,17 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { CanvasElement, ElementType } from './editor.types';
+import db from '@/db/db';
 
-export const useElements = () => {
+export const useElements = (FID: string | null) => {
   const [elements, setElements] = useState<CanvasElement[]>([]);
   const [selectedElementId, setSelectedElementId] = useState<number | null>(
     null
   );
   const [selectedTool, setSelectedTool] = useState<ElementType | null>(null);
 
-  const addElement = useCallback((type: ElementType) => {
+  const addElement = useCallback((type: ElementType, page?: number) => {
     const newElement: CanvasElement = {
       id: Date.now(),
       type,
@@ -19,6 +20,7 @@ export const useElements = () => {
       width: type === 'text' ? 200 : 100,
       height: type === 'text' ? 50 : 100,
       content: type === 'text' ? 'Edit me' : '',
+      color: '#7B7B7B',
       style: type.includes('highlight')
         ? {
             backgroundColor:
@@ -27,6 +29,7 @@ export const useElements = () => {
                 : 'rgba(255, 255, 0, 0.2)',
           }
         : {},
+      page: page ?? 1,
     };
     setSelectedElementId(newElement.id);
     setElements((prev) => [...prev, newElement]);
@@ -50,7 +53,20 @@ export const useElements = () => {
     if (!selectedElementId) return null;
     return elements.find((el) => el.id === selectedElementId);
   }, [selectedElementId, elements]);
+  const handleSave = async () => {
+    if (!FID) return;
+    const res = await db.files.update(FID, { elements });
+    console.log('handleSave res: ', res);
+  };
 
+  useEffect(() => {
+    (async () => {
+      if (!FID) return;
+      const res = await db.files.get(FID);
+      if (!res) return;
+      setElements(res.elements ?? []);
+    })();
+  }, [FID]);
   return {
     elements,
     selectedElementId,
@@ -61,5 +77,6 @@ export const useElements = () => {
     updateElement,
     removeElement,
     getSelectedElement,
+    handleSave,
   };
 };
