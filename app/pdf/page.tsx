@@ -1,11 +1,11 @@
-'use client';
+"use client";
 // First, install these packages:
 // npm install docx-preview xlsx react-window
 
-import React, { useState, useEffect, EventHandler } from 'react';
-import { renderAsync } from 'docx-preview';
-import * as XLSX from 'xlsx';
-import { FixedSizeGrid } from 'react-window';
+import React, { useState, useEffect, EventHandler } from "react";
+import { renderAsync } from "docx-preview";
+import * as XLSX from "xlsx";
+import { FixedSizeGrid } from "react-window";
 
 // DOC/DOCX Viewer Component
 export const DocViewer = ({
@@ -18,7 +18,7 @@ export const DocViewer = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const container = document.getElementById('doc-container');
+    const container = document.getElementById("doc-container");
     if (!container) return;
     const renderDoc = async () => {
       try {
@@ -26,14 +26,14 @@ export const DocViewer = ({
         // For docx files
         if (file instanceof Blob) {
           await renderAsync(file, container, container, {
-            className: 'doc-viewer',
+            className: "doc-viewer",
             inWrapper: true,
           });
         }
         // For doc files, you'll need to convert them to docx first
         // This example assumes docx files
       } catch (error) {
-        console.error('Error rendering document:', error);
+        console.error("Error rendering document:", error);
       } finally {
         setLoading(false);
       }
@@ -45,19 +45,19 @@ export const DocViewer = ({
   }, [file]);
 
   return (
-    <div className='w-full h-full'>
-      {loading && <div className='text-center p-4'>Loading document...</div>}
+    <div className="w-full h-full">
+      {loading && <div className="text-center p-4">Loading document...</div>}
       <div
-        id='doc-container'
-        className='w-full min-h-[500px] border border-gray-200 rounded-lg'
+        id="doc-container"
+        className="w-full min-h-[500px] border border-gray-200 rounded-lg"
       />
-      {renderElements()}
+      {/* {renderElements()} */}
     </div>
   );
 };
 
 // Excel Viewer Component
-const ExcelViewer = ({ file }: { file: File }) => {
+export const ExcelViewer = ({ file }: { file: File | Blob }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -69,7 +69,7 @@ const ExcelViewer = ({ file }: { file: File }) => {
 
         reader.onload = (e: any) => {
           const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
+          const workbook = XLSX.read(data, { type: "array" });
           const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
           const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
@@ -82,7 +82,7 @@ const ExcelViewer = ({ file }: { file: File }) => {
 
         reader.readAsArrayBuffer(file);
       } catch (error) {
-        console.error('Error reading Excel file:', error);
+        console.error("Error reading Excel file:", error);
       } finally {
         setLoading(false);
       }
@@ -95,29 +95,31 @@ const ExcelViewer = ({ file }: { file: File }) => {
 
   const Cell = ({ columnIndex, rowIndex, style }) => (
     <div
-      className='p-2 border-r border-b border-gray-200 truncate'
-      style={style}>
-      {data?.content[rowIndex]?.[columnIndex] || ''}
+      className="p-2 border-r border-b border-gray-200 truncate"
+      style={style}
+    >
+      {data?.content[rowIndex]?.[columnIndex] || ""}
     </div>
   );
 
   if (loading) {
-    return <div className='text-center p-4'>Loading spreadsheet...</div>;
+    return <div className="text-center p-4">Loading spreadsheet...</div>;
   }
 
   if (!data) {
-    return <div className='text-center p-4'>No data to display</div>;
+    return <div className="text-center p-4">No data to display</div>;
   }
 
   return (
-    <div className='w-full h-full border border-gray-200 rounded-lg'>
+    <div className="w-full h-full border border-gray-200 rounded-lg">
       <FixedSizeGrid
         columnCount={data.cols}
         columnWidth={120}
         height={500}
         rowCount={data.rows}
         rowHeight={35}
-        width={800}>
+        width={800}
+      >
         {Cell}
       </FixedSizeGrid>
     </div>
@@ -137,14 +139,14 @@ const FileViewer = () => {
   const renderViewer = () => {
     if (!selectedFile) return null;
 
-    const fileType = selectedFile.name.split('.').pop().toLowerCase();
+    const fileType = selectedFile.name.split(".").pop().toLowerCase();
 
     switch (fileType) {
-      case 'doc':
-      case 'docx':
+      case "doc":
+      case "docx":
         return <DocViewer file={selectedFile} />;
-      case 'xls':
-      case 'xlsx':
+      case "xls":
+      case "xlsx":
         return <ExcelViewer file={selectedFile} />;
       default:
         return <div>Unsupported file type</div>;
@@ -152,12 +154,12 @@ const FileViewer = () => {
   };
 
   return (
-    <div className='p-4'>
+    <div className="p-4">
       <input
-        type='file'
-        accept='.doc,.docx,.xls,.xlsx'
+        type="file"
+        accept=".doc,.docx,.xls,.xlsx"
         onChange={handleFileChange}
-        className='mb-4'
+        className="mb-4"
       />
       {renderViewer()}
     </div>
